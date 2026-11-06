@@ -1,0 +1,5 @@
+logs/
+.mcp_token
+.web_password
+.obsidian/workspace*.json
+__pycache__/

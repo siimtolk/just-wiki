@@ -1,0 +1,95 @@
+# just-wiki settings. Every key is optional; these are the defaults unless noted.
+
+[wiki]
+name = "JustWiki"
+owner = ""                 # the person whose open questions (status.md, Owner column) the web UI and reports count
+agent = "claude-code"      # updated_by for the steward
+
+[mcp]
+host = "127.0.0.1"         # 0.0.0.0 to serve other machines or containers (they need the bearer token in .mcp_token)
+port = 8093
+# instructions = "..."     # what agents are told about this wiki when they connect
+
+[web]
+host = "127.0.0.1"
+port = 8094
+user = "wiki"              # basic auth user; the password is in .web_password (created on first start)
+on_decision = []           # a command run after a decision is given in the web UI: gets <question id> <decision>
+explain_command = []       # `<cmd> [--cached] <question id>` prints {title, what, why, options} for a question
+# [[web.panels]]           # one more tab per entry: the command prints JSON (stats, tables, bars, cards) that the UI draws;
+# name = "Memory"          # the format is in the docstring of just_wiki/web/__init__.py
+# command = ["python3", "{root}/tools/my_report.py", "--json"]
+
+[tickets]
+github_repo = ""           # "owner/repo": its open issues are tickets (MCP list_tickets, web UI)
+
+[live.blocks]
+# <!-- live:uptime --> blocks in pages are filled with this command's output:
+# uptime = ["uptime"]
+
+[brief]
+max_chars = 9000
+sections = ["howto", "folder:preferences"]   # "howto" = <!-- brief --> snippets of pages; "folder:<name>" = that
+                           # folder's pages (standing instructions belong in context); or a command (a list)
+# [[brief.targets]]        # where to copy the brief besides brief.md
+# path = "~/.claude/CLAUDE.md"
+# mode = "block"           # "file" (whole file) or "block" (between <!-- brief --> markers)
+
+[lint]
+stale_days = 60
+checks = []                # extra checks: commands printing "ERROR …" / "WARNING …" lines
+
+[steward]
+# command = ["claude", "-p", "/wiki-steward{scope}", "--output-format", "json", "--permission-mode", "auto", "--max-turns", "200"]
+mode = "agent"             # "pipeline": notes merged with small LLM calls ([steward.llm]); suits local models
+rest = "agent"             # pipeline mode: answers, questions and stale pages go to the agent steward ("skip": nobody)
+# [steward.llm]            # pipeline mode: any OpenAI-compatible chat endpoint
+# base_url = "http://localhost:8080/v1"
+# model = "my-model"
+# api_key_file = "~/.config/my-llm/key.txt"   # a file holding the key, never the key itself
+# reasoning_effort = "low"
+# max_tokens = 16000
+# max_page_chars = 30000
+# [steward.verify]         # pipeline mode: code checks of the notes' claims; unchecked pages go to the agent
+# enabled = true           # false: no checks and no unchecked list (e.g. replaying another wiki's history)
+# checks = ["paths", "units"]
+# commands = []            # extra checks: get the note's path, print "OK …" / "FAIL …" lines
+# max_wait_min = 60        # `just-wiki steward --due` runs the agent check once a page waited this long
+# per_run = 10             # unchecked pages the agent re-checks per run
+pending_commands = []      # commands printing a number of other things waiting for the steward
+after = []                 # commands to run after each steward run
+rules = "STEWARD.md"
+timeout_min = 45
+
+[nightly]
+report_command = []        # gets the path of logs/nightly.json as its last argument
+push = true
+remote = "origin"
+branch = "main"
+
+[schedule]
+command = []               # a command printing the schedule as JSON rows for the web UI (default: systemd user timers)
+
+[pages]
+# Page folders: folder, the frontmatter type its pages have, and what belongs there (the steward routes notes by
+# this). A wiki without this section gets the setup-wiki folders (systems, projects, decisions, runbooks, results).
+types = [
+  {folder = "people", type = "person", about = "one person: who they are, background, relationships, situation"},
+  {folder = "preferences", type = "preference", about = "how someone wants things: tastes, standing instructions, how to answer or help them"},
+  {folder = "topics", type = "topic", about = "one subject, thing or piece of work (a plan, a product, a book series, a service): details, current state"},
+  {folder = "decisions", type = "decision", about = "a decision someone made: context, who and when, alternatives"},
+  {folder = "howtos", type = "howto", about = "how to do a recurring task, step by step"},
+  {folder = "results", type = "result", about = "outputs worth keeping: test results, measurements, reports"},
+]
+
+# [memory]                 # optional: keep agents' own memory files pointing at the wiki (just-wiki memory help)
+# enabled = true
+# mode = "report"          # "report": warn only (lint, the Memory tab); "fix": rewrite setup facts into (see wiki <page>), with backups
+# presets = ["network"]    # network (addresses, ports), paths (path_prefixes), chat-ids, models (model_names)
+# path_prefixes = ["/srv/"]
+# facts = true             # nightly: the LLM lists unit/container/job/path names from verified pages (needs [steward.llm] or [memory.llm])
+# audit = true             # nightly: memory vs. wiki, contradicts or stale (report only)
+# [[memory.sources]]       # `just-wiki connect claude-code --memory` / `connect hermes --dir=... --memory` add these
+# agent = "claude"
+# kind = "claude-code"     # claude-code | hermes | markdown-dir | file
+# path = "~/.claude/projects/*/memory"

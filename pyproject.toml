@@ -1,0 +1,43 @@
+[project]
+name = "just-wiki"
+version = "0.1.0"
+description = "A shared, stewarded wiki for AI agents: agents propose notes, one steward merges, every fact has a source."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6", "markdown>=3.5", "mcp>=1.9,<2", "uvicorn>=0.30"]
+
+[project.scripts]
+just-wiki = "just_wiki.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/just_wiki"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/just_wiki/web/style.py" = ["E501"]
+"src/just_wiki/web/__init__.py" = ["E501"]   # HTML in strings
+"tests/test_memory.py" = ["E501"]
+"tests/test_stats.py" = ["E501"]
+"tests/test_edit.py" = ["E501"]
+"tests/test_core.py" = ["E501"]
+"tests/test_connect.py" = ["E501"]
+"src/just_wiki/stats.py" = ["E501"]   # the report is data: long literal rows
+"src/just_wiki/memory/report.py" = ["E501"]   # the panel is data: long literal rows
